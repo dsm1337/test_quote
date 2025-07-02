@@ -9,26 +9,32 @@ User = get_user_model()
 class Source(models.Model):
     '''Модель источников цитат'''
     title = models.CharField('Название', max_length=100)
+    source_type = models.CharField(
+        'Тип произведения', max_length=100, blank=True
+    )
 
     class Meta:
         verbose_name = 'Источник'
         verbose_name_plural = 'источники'
 
     def __str__(self):
-        return title
+        return self.title
+
 
 class Quote(models.Model):
     '''Модель цитат'''
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     text = models.TextField('Текст')
-    source = models.ForeignKey(Source, on_delete=models.CASCADE, verbose_name='Источник')
+    source = models.ForeignKey(
+        Source, on_delete=models.CASCADE, verbose_name='Источник'
+    )
     views = models.IntegerField('Количество просмотров', default=0)
     weight = models.IntegerField(
-        'Вес публикации', 
+        'Вес публикации',
         default=0,
         validators=(
             MaxValueValidator(100),
-            MinValueValidator(0)
+            MinValueValidator(1)
         )
     )
     created_at = models.DateTimeField('Время публикации', auto_now_add=True)

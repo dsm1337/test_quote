@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %} Топ цитат {% endblock %}
+{% block content %}
+  <ul>
+    {% for quote in page_obj %}
+      <li> 
+        <h2>{{ quote.text }}</h2>
+        <h3> - {{ quote.source }}</h3>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

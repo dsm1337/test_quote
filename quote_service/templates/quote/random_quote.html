@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %} Случайная цитата {% endblock %}
+{% block content %}
+<h2>{{ quote.text }}</h2>
+<h3>Источник: {{ quote.source }}</h3>
+Просмотры: {{ quote.views }} 
+{% endblock %}
