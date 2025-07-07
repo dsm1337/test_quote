@@ -1,0 +1,5 @@
+<form method="POST" action="">
+  {% csrf_token %}
+  <button type="submit" name="vote" value="1">👍 {{ likes }}</button>
+  <button type="submit" name="vote" value="-1">👎 {{ dislikes }} </button>
+</form>

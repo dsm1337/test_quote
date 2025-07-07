@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.urls import reverse
 
 
 User = get_user_model()
@@ -16,6 +17,10 @@ class Source(models.Model):
     class Meta:
         verbose_name = 'Источник'
         verbose_name_plural = 'источники'
+        constraints = (models.constraints.UniqueConstraint(
+            fields=('title', 'source_type'),
+            name='unique_title_type'
+        ),)
 
     def __str__(self):
         return self.title
@@ -41,12 +46,16 @@ class Quote(models.Model):
 
     class Meta:
         default_related_name = 'quotes'
-        ordering = ('weight','views', 'created_at')
+        ordering = ('weight', 'views', 'created_at')
         verbose_name = 'Цитата'
         verbose_name_plural = 'цитаты'
+        constraints = (models.constraints.UniqueConstraint(
+            fields=('text', 'source'),
+            name='unique_text_source'
+        ),)
 
-    def get_likes(self):
-        return self.likes.count()
+    def get_absolute_url(self):
+        return reverse('quote:quote_detail', kwargs={'quote_id': self.pk})
 
     def __str__(self):
         return f'{self.source} - {self.text[:50]}'
@@ -58,8 +67,12 @@ class Opinion(models.Model):
         (-1, 'Dislike'),
         (1, 'Like')
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quote = models.ForeignKey(Quote, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='Пользователь'
+    )
+    quote = models.ForeignKey(
+        Quote, on_delete=models.CASCADE, verbose_name='Цитата'
+    )
     value = models.SmallIntegerField('Мнение', choices=OPINION_CHOICES)
     created_at = models.DateTimeField('Время проставления', auto_now_add=True)
 
@@ -68,6 +81,10 @@ class Opinion(models.Model):
         ordering = ('created_at', )
         verbose_name = 'Мнение'
         verbose_name_plural = 'мнения'
-    
+        constraints = (models.constraints.UniqueConstraint(
+            fields=('user', 'quote'),
+            name='unique_user_quote'
+        ),)
+
     def __str__(self):
-        return f'{self.author}: {self.quote} реакция: {self.value}'
+        return f'{self.user}: {self.quote} реакция: {self.value}'

@@ -24,7 +24,8 @@ class QuoteAdmin(admin.ModelAdmin):
     list_filter = ('views', 'weight')
     empty_value_display = 'Не задано'
 
+
 @admin.register(Opinion)
 class OpinionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'quote', 'created_at')
+    list_display = ('user', 'quote', 'value', 'created_at')
     list_display_links = ('quote',)
