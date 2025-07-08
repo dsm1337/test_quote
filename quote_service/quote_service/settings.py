@@ -28,6 +28,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 LOGIN_REDIRECT_URL = 'quote:random_quote'
+
+LOGIN_URL = '/auth/login/'
 # Application definition
 
 INSTALLED_APPS = [

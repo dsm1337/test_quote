@@ -1,5 +1,19 @@
-<form method="POST" action="">
+<form method="POST" action="" class="vote-form">
   {% csrf_token %}
-  <button type="submit" name="vote" value="1">👍 {{ likes }}</button>
-  <button type="submit" name="vote" value="-1">👎 {{ dislikes }} </button>
+  <div class="btn-group">
+    <input type="hidden" name="quote_id" value="{{ object.id }}">
+    <button type="submit" name="vote" value="1" class="btn btn-like">
+      <span class="emoji">👍</span> {{ likes }}
+    </button>
+    <button type="submit" name="vote" value="-1" class="btn btn-dislike">
+      <span class="emoji">👎</span> {{ dislikes }}
+    </button>
+  </div>
 </form>
+<script>
+  if (window.location.search.includes('quote_id=')) {
+    const url = new URL(window.location);
+    url.searchParams.delete('quote_id');
+    window.history.replaceState({}, '', url);
+  }
+</script>
