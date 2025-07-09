@@ -21,6 +21,11 @@
       {% bootstrap_field form.added_source_type layout='vertical' %}
     </div>
   </div>
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
   <button type="submit" class="btn btn-primary">Добавить цитату</button>
 </form>
 {% endblock %}

@@ -1,4 +1,6 @@
 from django import forms
+from django.db import models
+from unidecode import unidecode
 
 from .models import Quote, Source, WorkType
 
@@ -29,18 +31,35 @@ class CreateQuoteForm(forms.ModelForm):
         new_source = cleaned_data.get('added_source')
         new_source_type = cleaned_data.get('added_source_type')
 
-        if not source and (not new_source or not new_source_type):
+        if not source and not new_source:
             raise forms.ValidationError(
                 'Укажите источник!'
             )
 
+        if new_source and not new_source_type:
+            raise forms.ValidationError(
+                'Укажите тип добавляемого источника!'
+            )
+
         if new_source:
-            if Source.objects.filter(
-                title__iexact=new_source.strip(), source_type=new_source_type
-            ).exists():
-                raise forms.ValidationError(
-                    'Такой источник уже существует! Выберите из предложенных'
-                )
+            normalized_title = unidecode(new_source.strip().lower())
+            for existing_source in Source.objects.filter(
+                source_type=new_source_type
+            ):
+                if (
+                    unidecode(existing_source.title.strip().lower())
+                    == normalized_title
+                ):
+                    raise forms.ValidationError(
+                        'Такой источник уже существует! '
+                        'Выберите из предложенных'
+                    )
+
+        if source and Quote.objects.filter(source=source).count() >= 3:
+            raise forms.ValidationError(
+                'Нельзя добавлять источнику больше 3 цитат!'
+            )
+        return cleaned_data
 
     def save(self):
         source = self.cleaned_data.get('source')
