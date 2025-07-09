@@ -7,11 +7,23 @@ from django.urls import reverse
 User = get_user_model()
 
 
+class WorkType(models.Model):
+    name = models.CharField('Название', max_length=100)
+
+    class Meta:
+        verbose_name = 'Тип произведения'
+        verbose_name_plural = 'типы произведений'
+
+    def __str__(self):
+        return self.name
+
+
 class Source(models.Model):
     '''Модель источников цитат'''
     title = models.CharField('Название', max_length=100)
-    source_type = models.CharField(
-        'Тип произведения', max_length=100, blank=True
+    source_type = models.ForeignKey(
+        WorkType, on_delete=models.SET_NULL, null=True,
+        related_name='sources'
     )
 
     class Meta:

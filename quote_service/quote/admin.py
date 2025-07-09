@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Source, Quote, Opinion
+from .models import Source, Quote, Opinion, WorkType
 
 
 class QuoteInLine(admin.StackedInline):
@@ -29,3 +29,8 @@ class QuoteAdmin(admin.ModelAdmin):
 class OpinionAdmin(admin.ModelAdmin):
     list_display = ('user', 'quote', 'value', 'created_at')
     list_display_links = ('quote',)
+
+
+@admin.register(WorkType)
+class WorkTypeAdmin(admin.ModelAdmin):
+    pass
