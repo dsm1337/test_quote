@@ -1,5 +1,4 @@
 from django import forms
-from django.db import models
 from unidecode import unidecode
 
 from .models import Quote, Source, WorkType

@@ -2,10 +2,10 @@
   {% csrf_token %}
   <div class="btn-group">
     <input type="hidden" name="quote_id" value="{{ object.id }}">
-    <button type="submit" name="vote" value="1" class="btn btn-like">
+    <button type="submit" name="vote" value="1" class="btn btn-like {% if opinion == 1 %}btn-primary{% else %}btn-outline-primary{% endif %}" >
       <span class="emoji">👍</span> {{ likes }}
     </button>
-    <button type="submit" name="vote" value="-1" class="btn btn-dislike">
+    <button type="submit" name="vote" value="-1" class="btn btn-dislike {% if opinion == -1 %}btn-primary{% else %}btn-outline-primary{% endif %}" >
       <span class="emoji">👎</span> {{ dislikes }}
     </button>
   </div>

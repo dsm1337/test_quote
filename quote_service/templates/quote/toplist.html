@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block title %} Топ цитат {% endblock %}
 {% block content %}
-  <article class="mb-5">
-    {% for quote in page_obj %}
+  {% for quote in page_obj %}
+    <article class="mb-5">
       {% include "includes/quote-card.html" %}
-    {% endfor %}
-  </article>
+    </article>
+  {% endfor %}
+  {% include "includes/paginator.html" %}
 {% endblock %}

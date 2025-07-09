@@ -13,10 +13,17 @@
             Просмотры: {{ quote.views }}
           </span>
           <div>
-            {% include "includes/likes.html" %}
+            {% if request.resolver_match.view_name != 'quote:top_quotes' %}
+              {% include "includes/likes.html" %}
+            {% else %}
+               <span class="emoji">👍</span> {{ quote.total_likes }}
+            {% endif %}
           </div>
         </div>
       </div>
-    </div>
+      {% if request.resolver_match.view_name == 'quote:top_quotes' %}
+        <a href="{% url 'quote:quote_detail' quote.id %}" class="card-link">Читать полный текст</a>
+      {% endif %}
+      </div>
   </div>
 </div>

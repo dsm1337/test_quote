@@ -1,9 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
+from django.db.models import Case, IntegerField, Sum, When
 from django.urls import reverse
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.shortcuts import redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, DetailView, FormView
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import CreateView, DetailView, ListView
 import numpy as np
 
 from .forms import CreateQuoteForm
@@ -26,12 +27,24 @@ class LikeDislikeMixin:
         vote = request.POST.get('vote')
         if vote not in ('1', '-1'):
             return HttpResponseBadRequest("Некорректное значение vote")
-        Opinion.objects.update_or_create(
-            user=request.user,
-            quote=quote,
-            defaults={'value': int(vote)}
-        )
+        current_vote = Opinion.objects.filter(
+            user=request.user, quote=quote
+        ).first()
+        if current_vote and current_vote.value == int(vote):
+            current_vote.delete()
+        else:
+            Opinion.objects.update_or_create(
+                user=request.user,
+                quote=quote,
+                defaults={'value': int(vote)}
+            )
         self.object = quote
+        if getattr(self, 'use_redirect_on_post', False):
+            return redirect(self.get_success_url())
+        else:
+            return self.render_to_response(
+                self.get_context_data(object=self.object)
+            )
         return redirect(self.get_success_url())
 
     def get_success_url(self):
@@ -58,15 +71,29 @@ class LikeDislikeMixin:
 
 
 class TopQuoteList(ListView):
+    '''Топ лист цитат'''
     model = Quote
     template_name = 'quote/toplist.html'
     paginate_by = PAGINATE_BY
     queryset = Quote.objects.all()
 
+    def get_queryset(self):
+        return Quote.objects.annotate(
+            total_likes=Sum(
+                Case(
+                    When(likes__value=1, then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            )
+        ).order_by('-total_likes', '-created_at')
+
 
 class RandomQuote(LikeDislikeMixin, DetailView):
+    '''Случайная цитата'''
     model = Quote
     template_name = 'quote/quote-random.html'
+    use_redirect_on_post = True
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -94,6 +121,7 @@ class RandomQuote(LikeDislikeMixin, DetailView):
 
 
 class CreateQuote(LoginRequiredMixin, CreateView):
+    '''Создание цитаты'''
     model = Quote
     template_name = 'quote/create.html'
     form_class = CreateQuoteForm
@@ -108,12 +136,15 @@ class CreateQuote(LoginRequiredMixin, CreateView):
 
 
 class QuoteDetail(LikeDislikeMixin, DetailView):
+    '''Отедельная цитата'''
     model = Quote
     template_name = 'quote/quote-detail.html'
     pk_url_kwarg = 'quote_id'
+    use_redirect_on_post = False
 
-    def get_success_url(self):
-        return reverse(
-            'quote:quote_detail',
-            kwargs={self.pk_url_kwarg: self.get_object().pk}
-        )
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.views += 1
+        self.object.save(update_fields=['views'])
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
