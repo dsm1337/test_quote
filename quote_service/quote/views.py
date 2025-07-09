@@ -105,9 +105,13 @@ class RandomQuote(LikeDislikeMixin, DetailView):
         if quote_id:
             return get_object_or_404(Quote, pk=quote_id)
 
-        ids, weights = zip(*Quote.objects.values_list('id', 'weight'))
+        
+        try:
+            ids, weights = zip(*Quote.objects.values_list('id', 'weight'))
+        except ValueError:
+            ids, weights = [], []
         if not ids:
-            return
+            return redirect('quote:top_quotes')
         weights = np.array(weights, dtype=np.uint8)
         weights = weights / weights.sum()
         random_id = int(np.random.choice(ids, p=weights))
