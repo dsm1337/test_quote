@@ -15,7 +15,6 @@ if not SECRET_KEY:
         f.write(f"\nDJANGO_SECRET_KEY={SECRET_KEY}\n")
 
 DEBUG = False
-
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'www.dsm1337.pythonanywhere.com',

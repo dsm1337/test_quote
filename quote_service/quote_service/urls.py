@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('quote/', include('quote.urls', namespace='quote')),
+    path('', include('quote.urls', namespace='quote')),
     path('auth/logout/',
          LogoutView.as_view(
              template_name='registration/logged_out.html',
