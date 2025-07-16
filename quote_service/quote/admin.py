@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Source, Quote, Opinion, WorkType
+from .models import Source, Quote, Opinion, WorkType, Weight
 
 
 class QuoteInLine(admin.StackedInline):
@@ -33,4 +33,9 @@ class OpinionAdmin(admin.ModelAdmin):
 
 @admin.register(WorkType)
 class WorkTypeAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Weight)
+class WeightAdmin(admin.ModelAdmin):
     pass

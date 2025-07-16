@@ -5,8 +5,9 @@
 <form method="post">
   {% csrf_token %}
   {% bootstrap_field form.text layout='vertical' %}
-  {% bootstrap_field form.weight layout='vertical' %}
-
+  <div class="col-md-1">
+    {% bootstrap_field form.weight layout='vertical' %}
+  </div>
   <div class="row mb-3">
     <div class="col-md-3">
       {% bootstrap_field form.source layout='vertical' %}

@@ -1,3 +1,5 @@
+from random import randint
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import Case, IntegerField, Sum, When
@@ -8,7 +10,7 @@ from django.views.generic import CreateView, DetailView, ListView
 import numpy as np
 
 from .forms import CreateQuoteForm
-from .models import Quote, Opinion
+from .models import Quote, Opinion, Weight
 
 
 PAGINATE_BY = 10
@@ -105,17 +107,22 @@ class RandomQuote(LikeDislikeMixin, DetailView):
         if quote_id:
             return get_object_or_404(Quote, pk=quote_id)
 
-        
         try:
-            ids, weights = zip(*Quote.objects.values_list('id', 'weight'))
+            ids, count, weights = zip(*Weight.objects.values_list('id', 'count', 'value'))
         except ValueError:
-            ids, weights = [], []
-        if not ids:
+            count, weights = [], []
+
+        if sum(count) == 0:
             return redirect('quote:top_quotes')
-        weights = np.array(weights, dtype=np.uint8)
-        weights = weights / weights.sum()
-        random_id = int(np.random.choice(ids, p=weights))
-        quote = Quote.objects.get(pk=random_id)
+
+        probalities = np.multiply(np.array(weights), np.array(count))
+        print(probalities)
+        probalities = probalities / probalities.sum()
+
+        random_id = int(np.random.choice(len(ids), p=probalities))
+        chosen_weight_id = ids[random_id]
+        offset = randint(0, count[random_id]-1)
+        quote = Quote.objects.filter(weight=chosen_weight_id)[offset]
         quote.views += 1
         quote.save(update_fields=['views'])
         return quote

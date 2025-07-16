@@ -1,7 +1,7 @@
 from django import forms
 from unidecode import unidecode
 
-from .models import Quote, Source, WorkType
+from .models import Quote, Source, WorkType, Weight
 
 
 class CreateQuoteForm(forms.ModelForm):
@@ -16,7 +16,9 @@ class CreateQuoteForm(forms.ModelForm):
         required=False,
         label='Тип произведения'
     )
-    weight = forms.IntegerField(min_value=1, max_value=100, label='Вес')
+    weight = forms.ModelChoiceField(
+        queryset=Weight.objects.all(), label='Вес'
+    )
 
     class Meta:
         model = Quote
