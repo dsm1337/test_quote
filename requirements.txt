@@ -3,10 +3,13 @@ Django==5.2.3
 django-bootstrap5==25.1
 dotenv==0.9.9
 flake8==7.3.0
+Levenshtein==0.27.1
 mccabe==0.7.0
 numpy==2.3.1
 pycodestyle==2.14.0
 pyflakes==3.4.0
 python-dotenv==1.1.1
+python-Levenshtein==0.27.1
+RapidFuzz==3.13.0
 sqlparse==0.5.3
 Unidecode==1.4.0
