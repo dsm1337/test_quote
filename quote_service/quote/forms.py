@@ -1,4 +1,5 @@
 from django import forms
+from Levenshtein import distance
 from unidecode import unidecode
 
 from .models import Quote, Source, WorkType, Weight
@@ -31,6 +32,7 @@ class CreateQuoteForm(forms.ModelForm):
         source = cleaned_data.get('source')
         new_source = cleaned_data.get('added_source')
         new_source_type = cleaned_data.get('added_source_type')
+        text = cleaned_data.get('text')
 
         if not source and not new_source:
             raise forms.ValidationError(
@@ -55,11 +57,26 @@ class CreateQuoteForm(forms.ModelForm):
                         'Такой источник уже существует! '
                         'Выберите из предложенных'
                     )
+        else:
+            quotes = Quote.objects.filter(source=source)
+            if quotes.count() >= 3:
+                raise forms.ValidationError(
+                    'Нельзя добавлять источнику больше 3 цитат!'
+                )
+            if len(text) == 0:
+                raise forms.ValidationError(
+                    'Необходимо заполнить поле текст!'
+                )
+            for quote in quotes:
+                difference = (
+                    distance(text, quote.text)
+                    / max(len(text), len(quote.text))
+                )
+                if difference < 0.2:
+                    raise forms.ValidationError(
+                        'Похожая цитата уже существует!'
+                    )
 
-        if source and Quote.objects.filter(source=source).count() >= 3:
-            raise forms.ValidationError(
-                'Нельзя добавлять источнику больше 3 цитат!'
-            )
         return cleaned_data
 
     def save(self):

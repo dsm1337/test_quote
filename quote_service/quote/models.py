@@ -85,7 +85,6 @@ class Quote(models.Model):
     def get_absolute_url(self):
         return reverse('quote:quote_detail', kwargs={'quote_id': self.pk})
 
-
     def change_weight_count(self, pk, increase=False):
         Weight.objects.filter(pk=pk).update(
             count=models.F('count') + 1 if increase else -1
@@ -109,7 +108,6 @@ class Quote(models.Model):
 
     def delete(self, *args, **kwargs):
         weight_id = self.weight_id
-        print(f'DELETE {weight_id}')
         super().delete(*args, **kwargs)
         if weight_id:
             self.change_weight_count(pk=weight_id, increase=False)

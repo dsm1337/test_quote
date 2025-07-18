@@ -38,4 +38,7 @@ class WorkTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Weight)
 class WeightAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        'value', 'count',
+    )
+    list_editable = ('count',)

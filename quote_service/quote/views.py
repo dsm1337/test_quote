@@ -102,27 +102,49 @@ class RandomQuote(LikeDislikeMixin, DetailView):
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
+    @staticmethod
+    def get_random_quote(count, chosen_weight):
+        offset = randint(0, count-1)
+        quote = Quote.objects.filter(weight=chosen_weight)[offset]
+        return quote
+
     def get_object(self):
         quote_id = self.request.GET.get('quote_id')
         if quote_id:
             return get_object_or_404(Quote, pk=quote_id)
 
         try:
-            ids, count, weights = zip(*Weight.objects.values_list('id', 'count', 'value'))
+            ids, quote_count, weights = zip(
+                *Weight.objects.values_list('id', 'count', 'value')
+            )
         except ValueError:
-            count, weights = [], []
+            quote_count, weights = [], []
 
-        if sum(count) == 0:
+        if sum(quote_count) == 0:
             return redirect('quote:top_quotes')
 
-        probalities = np.multiply(np.array(weights), np.array(count))
-        print(probalities)
+        probalities = np.multiply(np.array(weights), np.array(quote_count))
         probalities = probalities / probalities.sum()
 
         random_id = int(np.random.choice(len(ids), p=probalities))
         chosen_weight_id = ids[random_id]
-        offset = randint(0, count[random_id]-1)
-        quote = Quote.objects.filter(weight=chosen_weight_id)[offset]
+        try:
+            quote = self.get_random_quote(
+                quote_count[random_id], chosen_weight_id
+            )
+        except IndexError:
+            actual_count = Quote.objects.filter(
+                weight=chosen_weight_id
+            ).count()
+            Weight.objects.filter(pk=chosen_weight_id).update(
+                count=actual_count
+            )
+            if actual_count == 0:
+                quote = Quote.objects.first()
+            else:
+                quote = self.get_random_quote(
+                    quote_count[random_id], chosen_weight_id
+                )
         quote.views += 1
         quote.save(update_fields=['views'])
         return quote
